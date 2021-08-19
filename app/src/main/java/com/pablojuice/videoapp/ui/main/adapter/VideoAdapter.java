@@ -31,7 +31,7 @@ import java.util.List;
 
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
 
-    private List<VideoItem> items;
+    private final List<VideoItem> items;
 
     public VideoAdapter(List<VideoItem> items) {
         if (items != null) {
@@ -77,11 +77,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             videoTitle = itemView.findViewById(R.id.tvVideoTitle);
             videoSubtitle = itemView.findViewById(R.id.tvVideoSubtitle);
             itemView.setOnClickListener(v -> {
-                VideoItem videoItem = items.get(getAdapterPosition());
-
+                VideoItem videoItem = items.get(getBindingAdapterPosition());
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("videoItem", videoItem);
-
                 AppCompatActivity activity = (AppCompatActivity) itemView.getContext();
                 NavController navController = Navigation.findNavController(activity,
                                                                            R.id.fragmentContainerView);

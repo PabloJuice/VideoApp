@@ -12,9 +12,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 
-public abstract class BaseFragment<B extends ViewDataBinding> extends Fragment implements Navigator{
+public abstract class BaseFragment<B extends ViewDataBinding> extends Fragment implements Navigator {
 
     protected B binding;
     protected NavController navController;
@@ -23,7 +22,9 @@ public abstract class BaseFragment<B extends ViewDataBinding> extends Fragment i
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         binding = bindLayout(inflater, container);
         binding.setLifecycleOwner(getViewLifecycleOwner());
@@ -35,7 +36,7 @@ public abstract class BaseFragment<B extends ViewDataBinding> extends Fragment i
         super.onDestroy();
         try {
             binding.unbind();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

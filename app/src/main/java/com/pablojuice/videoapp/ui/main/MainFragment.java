@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.google.android.material.tabs.TabLayout;
@@ -48,7 +47,6 @@ public class MainFragment extends BaseFragment<FragmentMainBinding> {
         setupTabBar();
         setupObservers();
         setupRecyclerView();
-        navController = Navigation.findNavController(binding.getRoot());
     }
 
     private void setupTabBar() {
@@ -58,7 +56,7 @@ public class MainFragment extends BaseFragment<FragmentMainBinding> {
         binding.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                if (tab.getText().toString().equals(Constants.MainVideoTabs.MYVIDEOS.name())) {
+                if (String.valueOf(tab.getText()).equals(Constants.MainVideoTabs.MYVIDEOS.name())) {
                     mViewModel.loadMyVideosRequest();
                 } else mViewModel.loadVideosRequest(requireActivity());
             }
@@ -90,7 +88,7 @@ public class MainFragment extends BaseFragment<FragmentMainBinding> {
 
     private void toggleTopBar() {
         getActivity().setTheme(R.style.Theme_VideoApp_ActionBar);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("VideoApp");
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(getResources().getText(R.string.app_name));
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 

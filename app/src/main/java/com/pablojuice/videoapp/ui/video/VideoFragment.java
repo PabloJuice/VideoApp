@@ -89,7 +89,8 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
     @Override
     public void onResume() {
         super.onResume();
-        if (binding.videoPlayer.getPlayer() != null) {
+        if (binding.videoPlayer.getPlayer
+                () != null) {
             binding.videoPlayer.getPlayer().setPlayWhenReady(true);
         }
     }
@@ -106,9 +107,7 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
         binding.tvTitle.setText(mViewModel.videoItem.getTitle());
         binding.tvSubtitle.setText(mViewModel.videoItem.getSubtitle());
         binding.tvDescription.setText(mViewModel.videoItem.getDescription());
-        mViewModel.isFavourite.observe(getViewLifecycleOwner(), isFavourite -> {
-            toggleLikeBtn(isFavourite);
-        });
+        mViewModel.isFavourite.observe(getViewLifecycleOwner(), this::toggleLikeBtn);
     }
 
     private void loadImage() {
@@ -138,9 +137,7 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
     }
 
     private void setupOnClickListeners() {
-        binding.ivLike.setOnClickListener(v -> {
-            mViewModel.addOrDeleteFromFavourites();
-        });
+        binding.ivLike.setOnClickListener(v -> mViewModel.addOrDeleteFromFavourites());
         binding.btnPlay.setOnClickListener(v -> {
             binding.mainScrollView.setVisibility(View.GONE);
             mViewModel.setVideoPlaying(true);
