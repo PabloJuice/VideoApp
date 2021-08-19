@@ -117,6 +117,8 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
         exoPlayer.setMediaSource(mediaSource);
         exoPlayer.setPlayWhenReady(true);
         exoPlayer.prepare();
+
+        getView().findViewById(R.id.exo_back).setOnClickListener(v -> goBack());
     }
 
     private void stopVideo() {
