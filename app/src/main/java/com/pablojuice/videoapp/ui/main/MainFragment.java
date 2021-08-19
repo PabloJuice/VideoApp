@@ -12,10 +12,12 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 
+import com.google.android.material.tabs.TabLayout;
 import com.pablojuice.videoapp.R;
 import com.pablojuice.videoapp.core.BaseFragment;
 import com.pablojuice.videoapp.databinding.FragmentMainBinding;
 import com.pablojuice.videoapp.ui.main.adapter.VideoAdapter;
+import com.pablojuice.videoapp.utils.Constants;
 
 
 public class MainFragment extends BaseFragment<FragmentMainBinding> {
@@ -32,7 +34,6 @@ public class MainFragment extends BaseFragment<FragmentMainBinding> {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mViewModel = new ViewModelProvider(this).get(MainViewModel.class);
-        mViewModel.loadVideosRequest(requireActivity());
     }
 
     @Override
@@ -44,9 +45,35 @@ public class MainFragment extends BaseFragment<FragmentMainBinding> {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setupTabBar();
         setupObservers();
         setupRecyclerView();
         navController = Navigation.findNavController(binding.getRoot());
+    }
+
+    private void setupTabBar() {
+        for (Constants.MainVideoTabs value : Constants.MainVideoTabs.values()) {
+            binding.tabLayout.addTab(binding.tabLayout.newTab().setText(value.name()));
+        }
+        binding.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getText().toString().equals(Constants.MainVideoTabs.MYVIDEOS.name())) {
+                    mViewModel.loadMyVideosRequest();
+                } else mViewModel.loadVideosRequest(requireActivity());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                onTabSelected(tab);
+            }
+        });
+
+        binding.tabLayout.getTabAt(0).select();
     }
 
     private void setupObservers() {

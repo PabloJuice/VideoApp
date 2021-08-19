@@ -3,8 +3,16 @@ package com.pablojuice.videoapp.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
+@Entity
 public class VideoItem implements Parcelable {
 
     public static final Creator<VideoItem> CREATOR = new Creator<VideoItem>() {
@@ -18,11 +26,21 @@ public class VideoItem implements Parcelable {
             return new VideoItem[size];
         }
     };
-    private String description;
-    private List<String> sources;
-    private String subtitle;
-    private String thumb;
+    @PrimaryKey
+    @NotNull
+    @ColumnInfo(name = "title")
     private String title;
+    @ColumnInfo(name = "description")
+    private String description;
+    @Ignore
+    private List<String> sources;
+    @ColumnInfo(name = "source")
+    private String source;
+    @ColumnInfo(name = "subtitle")
+    private String subtitle;
+    @ColumnInfo(name = "thumb")
+    private String thumb;
+    @ColumnInfo(name = "isFavourite")
     private boolean isFavourite;
 
     protected VideoItem(Parcel in) {
@@ -32,6 +50,9 @@ public class VideoItem implements Parcelable {
         thumb = in.readString();
         title = in.readString();
     }
+
+    public VideoItem(){}
+
 
     public String getDescription() {
         return description;
@@ -43,6 +64,14 @@ public class VideoItem implements Parcelable {
 
     public List<String> getSources() {
         return sources;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 
     public void setSources(List<String> sources) {
@@ -68,6 +97,7 @@ public class VideoItem implements Parcelable {
     public void normalizeItem() {
         if (sources != null && !sources.isEmpty()) {
             sources.add(0, sources.get(0).replace("http", "https"));
+            source = sources.get(0);
             this.thumb = sources.get(0).substring(0,
                                                   sources.get(0).lastIndexOf("/") + 1) + this.thumb;
         }

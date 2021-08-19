@@ -31,12 +31,10 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.pablojuice.videoapp.R;
 import com.pablojuice.videoapp.core.BaseFragment;
 import com.pablojuice.videoapp.databinding.FragmentItemMainBinding;
-import com.pablojuice.videoapp.models.VideoItem;
 
 public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
 
     private VideoViewModel mViewModel;
-    private VideoItem videoItem;
     private SimpleExoPlayer exoPlayer;
 
     @Override
@@ -46,9 +44,7 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        mViewModel = getViewModel(VideoViewModel.class);
-        videoItem = getArguments().getParcelable("videoItem");
-        mViewModel.checkIfVideoIsFavourite();
+        setupViewModel();
         setupTopActionbar(mViewModel.isVideoPlaying());
         super.onCreate(savedInstanceState);
     }
@@ -56,6 +52,7 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         OnBackPressedCallback callback;
         if (getActivity().getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
             playVideo();
@@ -80,17 +77,26 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
         navController = Navigation.findNavController(binding.getRoot());
     }
 
+    private void setupViewModel() {
+        mViewModel = getViewModel(VideoViewModel.class);
+        mViewModel.setupDatabaseConnection(requireContext());
+        mViewModel.setVideoItem(getArguments().getParcelable("videoItem"));
+        mViewModel.checkIfVideoIsFavourite();
+    }
+
     private void fetchVideoInfo() {
         loadImage();
-        binding.tvTitle.setText(videoItem.getTitle());
-        binding.tvSubtitle.setText(videoItem.getSubtitle());
-        binding.tvDescription.setText(videoItem.getDescription());
-        toggleLikeBtn(mViewModel.isFavourite.getValue());
+        binding.tvTitle.setText(mViewModel.videoItem.getTitle());
+        binding.tvSubtitle.setText(mViewModel.videoItem.getSubtitle());
+        binding.tvDescription.setText(mViewModel.videoItem.getDescription());
+        mViewModel.isFavourite.observe(getViewLifecycleOwner(), isFavourite -> {
+            toggleLikeBtn(isFavourite);
+        });
     }
 
     private void loadImage() {
         binding.ivMainPic.post(() -> Glide.with(requireContext())
-                .load(videoItem.getThumb()).diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                .load(mViewModel.videoItem.getThumb()).diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                 .listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e,
@@ -117,7 +123,7 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
     private void setupOnClickListeners() {
         binding.ivLike.setOnClickListener(v -> {
             mViewModel.addOrDeleteFromFavourites();
-            toggleLikeBtn(mViewModel.isFavourite.getValue());
+            //toggleLikeBtn(mViewModel.isFavourite.getValue());
         });
         binding.btnPlay.setOnClickListener(v -> {
             binding.mainScrollView.setVisibility(View.GONE);
@@ -140,7 +146,7 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
         exoPlayer = new SimpleExoPlayer.Builder(requireContext()).build();
         MediaSource mediaSource = new ProgressiveMediaSource
                 .Factory(new DefaultDataSourceFactory(requireContext(), "usr"))
-                .createMediaSource(MediaItem.fromUri(Uri.parse(videoItem.getSources().get(0))));
+                .createMediaSource(MediaItem.fromUri(Uri.parse(mViewModel.videoItem.getSource())));
         exoPlayer.setMediaSource(mediaSource);
         exoPlayer.setPlayWhenReady(true);
         exoPlayer.play();
