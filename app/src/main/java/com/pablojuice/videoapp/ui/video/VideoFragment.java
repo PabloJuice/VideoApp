@@ -1,7 +1,9 @@
 package com.pablojuice.videoapp.ui.video;
 
+import static com.pablojuice.videoapp.utils.Constants.ITEM_KEY;
+import static com.pablojuice.videoapp.utils.VideoUtil.loadImageFromVideoItem;
+
 import android.content.pm.ActivityInfo;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,12 +19,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.navigation.Navigation;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -52,29 +48,14 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        OnBackPressedCallback callback;
         if (getActivity().getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-            playVideo();
-            callback = new OnBackPressedCallback(true) {
-                @Override
-                public void handleOnBackPressed() {
-                    stopVideo();
-                }
-            };
+            setupVideoPlayer();
         } else {
             fetchVideoInfo();
             setupOnClickListeners();
-            callback = new OnBackPressedCallback(true) {
-                @Override
-                public void handleOnBackPressed() {
-                    goBack();
-                }
-            };
         }
-        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(),
-                                                                   callback);
         navController = Navigation.findNavController(binding.getRoot());
+        setupNativeBackButton();
     }
 
     @Override
@@ -85,12 +66,10 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
         }
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
-        if (binding.videoPlayer.getPlayer
-                () != null) {
+        if (binding.videoPlayer.getPlayer() != null) {
             binding.videoPlayer.getPlayer().setPlayWhenReady(true);
         }
     }
@@ -98,42 +77,16 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
     private void setupViewModel() {
         mViewModel = getViewModel(VideoViewModel.class);
         mViewModel.setupDatabaseConnection(requireContext());
-        mViewModel.setVideoItem(getArguments().getParcelable("videoItem"));
+        mViewModel.setVideoItem(getArguments().getParcelable(ITEM_KEY));
         mViewModel.checkIfVideoIsFavourite();
     }
 
     private void fetchVideoInfo() {
-        loadImage();
-        binding.tvTitle.setText(mViewModel.videoItem.getTitle());
-        binding.tvSubtitle.setText(mViewModel.videoItem.getSubtitle());
-        binding.tvDescription.setText(mViewModel.videoItem.getDescription());
-        mViewModel.isFavourite.observe(getViewLifecycleOwner(), this::toggleLikeBtn);
-    }
-
-    private void loadImage() {
-        binding.ivMainPic.post(() -> Glide.with(requireContext())
-                .load(mViewModel.videoItem.getThumb()).diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                .listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e,
-                                                Object model,
-                                                Target<Drawable> target,
-                                                boolean isFirstResource) {
-                        binding.ivMainPic.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
-                                                                                       R.drawable.sync_error_icon,
-                                                                                       null));
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(Drawable resource,
-                                                   Object model,
-                                                   Target<Drawable> target,
-                                                   DataSource dataSource,
-                                                   boolean isFirstResource) {
-                        return false;
-                    }
-                }).into(binding.ivMainPic));
+        loadImageFromVideoItem(mViewModel.getVideoItem(), binding.ivMainPic, requireContext());
+        binding.tvTitle.setText(mViewModel.getVideoItem().getTitle());
+        binding.tvSubtitle.setText(mViewModel.getVideoItem().getSubtitle());
+        binding.tvDescription.setText(mViewModel.getVideoItem().getDescription());
+        mViewModel.getIsFavourite().observe(getViewLifecycleOwner(), this::toggleLikeBtn);
     }
 
     private void setupOnClickListeners() {
@@ -152,14 +105,14 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
                                                                     null));
     }
 
-    private void playVideo() {
+    private void setupVideoPlayer() {
         binding.mainScrollView.setVisibility(View.GONE);
         binding.videoPlayer.setVisibility(View.VISIBLE);
         toggleFullscreen();
         exoPlayer = new SimpleExoPlayer.Builder(requireContext()).build();
         MediaSource mediaSource = new ProgressiveMediaSource
-                .Factory(new DefaultDataSourceFactory(requireContext(), "usr"))
-                .createMediaSource(MediaItem.fromUri(Uri.parse(mViewModel.videoItem.getSource())));
+                .Factory(new DefaultDataSourceFactory(requireContext(), ITEM_KEY))
+                .createMediaSource(MediaItem.fromUri(Uri.parse(mViewModel.getVideoItem().getSource())));
         binding.videoPlayer.setPlayer(exoPlayer);
         exoPlayer.setMediaSource(mediaSource);
         exoPlayer.setPlayWhenReady(true);
@@ -176,7 +129,7 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
     private void setupTopActionbar(boolean status) {
         if (!status) {
             getActivity().setTheme(R.style.Theme_VideoApp_ActionBar);
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mViewModel.videoItem.getTitle());
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mViewModel.getVideoItem().getTitle());
             ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         } else {
             getActivity().setTheme(R.style.Theme_VideoApp_NoActionBar);
@@ -192,5 +145,22 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
         decorView.setSystemUiVisibility(uiOptions);
         decorView.setOnSystemUiVisibilityChangeListener(visibility -> decorView.setSystemUiVisibility(
                 uiOptions));
+    }
+
+    private void setupNativeBackButton() {
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                goBack();
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(),
+                                                                   callback);
+    }
+
+    @Override
+    public void goBack() {
+        if (mViewModel.isVideoPlaying()) stopVideo();
+        else super.goBack();
     }
 }

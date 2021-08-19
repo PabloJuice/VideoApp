@@ -1,5 +1,7 @@
 package com.pablojuice.videoapp.ui.video;
 
+import static com.pablojuice.videoapp.utils.Constants.DATABASE_NAME;
+
 import android.content.Context;
 
 import androidx.lifecycle.MutableLiveData;
@@ -11,19 +13,15 @@ import com.pablojuice.videoapp.models.VideoItem;
 
 public class VideoViewModel extends ViewModel {
 
-    public VideoItem videoItem;
-    public MutableLiveData<Boolean> isFavourite = new MutableLiveData<>();
+    private VideoItem videoItem;
+    private MutableLiveData<Boolean> isFavourite = new MutableLiveData<>();//
     private AppDatabase videoDatabase;
     private boolean isVideoPlaying = false;
-
-    public void setVideoItem(VideoItem videoItem) {
-        this.videoItem = videoItem;
-    }
 
     public void setupDatabaseConnection(Context context) {
         this.videoDatabase = Room.databaseBuilder(context,
                                                   AppDatabase.class,
-                                                  "video-items").allowMainThreadQueries().build();
+                                                  DATABASE_NAME).allowMainThreadQueries().build();//
     }
 
     public void checkIfVideoIsFavourite() {
@@ -42,5 +40,21 @@ public class VideoViewModel extends ViewModel {
 
     public void setVideoPlaying(boolean videoPlaying) {
         this.isVideoPlaying = videoPlaying;
+    }
+
+    public VideoItem getVideoItem() {
+        return videoItem;
+    }
+
+    public void setVideoItem(VideoItem videoItem) {
+        this.videoItem = videoItem;
+    }
+
+    public MutableLiveData<Boolean> getIsFavourite() {
+        return isFavourite;
+    }
+
+    public void setIsFavourite(MutableLiveData<Boolean> isFavourite) {
+        this.isFavourite = isFavourite;
     }
 }

@@ -8,4 +8,6 @@ public class Constants {
         SCENES, MYVIDEOS
     }
     public static final Charset STANDARD_CHARSET = StandardCharsets.UTF_8;
+    public static final String ITEM_KEY = "videoItem";
+    public static final String DATABASE_NAME = "video-items";
 }

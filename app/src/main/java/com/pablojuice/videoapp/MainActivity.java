@@ -7,7 +7,7 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.pablojuice.videoapp.core.BaseFragment;
+import com.pablojuice.videoapp.core.Navigator;
 
 import java.util.Objects;
 
@@ -23,10 +23,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            BaseFragment baseFragment = (BaseFragment) Objects.requireNonNull(
+            Navigator navigator = (Navigator) Objects.requireNonNull(
                     getSupportFragmentManager().findFragmentById(
                             R.id.fragmentContainerView)).getChildFragmentManager().getFragments().get(0);
-            baseFragment.goBack();
+            navigator.goBack();
             return true;
         }
         return super.onOptionsItemSelected(item);
