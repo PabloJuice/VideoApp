@@ -30,7 +30,7 @@ public class MainViewModel extends ViewModel {
         setupDatabase(activity.getApplicationContext());
         List<VideoItem> items = getVideosFromJson(getJSONFromAsset(activity, "scenes.json"));
         videoItems.postValue(items);
-        if (videoDatabase.videoDao().findAll().isEmpty()){
+        if (videoDatabase.videoDao().findAll().isEmpty()) {
             items.forEach(videoItem -> this.videoDatabase.videoDao().insert(videoItem));
         }
     }

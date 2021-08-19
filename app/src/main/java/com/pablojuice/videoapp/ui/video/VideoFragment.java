@@ -77,6 +77,23 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
         navController = Navigation.findNavController(binding.getRoot());
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (binding.videoPlayer.getPlayer() != null) {
+            binding.videoPlayer.getPlayer().pause();
+        }
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (binding.videoPlayer.getPlayer() != null) {
+            binding.videoPlayer.getPlayer().setPlayWhenReady(true);
+        }
+    }
+
     private void setupViewModel() {
         mViewModel = getViewModel(VideoViewModel.class);
         mViewModel.setupDatabaseConnection(requireContext());
@@ -123,7 +140,6 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
     private void setupOnClickListeners() {
         binding.ivLike.setOnClickListener(v -> {
             mViewModel.addOrDeleteFromFavourites();
-            //toggleLikeBtn(mViewModel.isFavourite.getValue());
         });
         binding.btnPlay.setOnClickListener(v -> {
             binding.mainScrollView.setVisibility(View.GONE);
@@ -147,12 +163,10 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
         MediaSource mediaSource = new ProgressiveMediaSource
                 .Factory(new DefaultDataSourceFactory(requireContext(), "usr"))
                 .createMediaSource(MediaItem.fromUri(Uri.parse(mViewModel.videoItem.getSource())));
+        binding.videoPlayer.setPlayer(exoPlayer);
         exoPlayer.setMediaSource(mediaSource);
         exoPlayer.setPlayWhenReady(true);
-        exoPlayer.play();
-        binding.videoPlayer.setPlayer(exoPlayer);
-        exoPlayer.setPlayWhenReady(true);
-        exoPlayer.play();
+        exoPlayer.prepare();
     }
 
     private void stopVideo() {
@@ -165,7 +179,7 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
     private void setupTopActionbar(boolean status) {
         if (!status) {
             getActivity().setTheme(R.style.Theme_VideoApp_ActionBar);
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("");
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mViewModel.videoItem.getTitle());
             ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         } else {
             getActivity().setTheme(R.style.Theme_VideoApp_NoActionBar);

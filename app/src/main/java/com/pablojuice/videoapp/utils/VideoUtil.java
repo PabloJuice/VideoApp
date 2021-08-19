@@ -1,5 +1,7 @@
 package com.pablojuice.videoapp.utils;
 
+import static com.pablojuice.videoapp.utils.Constants.STANDARD_CHARSET;
+
 import android.app.Activity;
 
 import com.google.gson.Gson;
@@ -8,7 +10,6 @@ import com.pablojuice.videoapp.models.VideoItemsDto;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class VideoUtil {
             byte[] buffer = new byte[size];
             is.read(buffer);
             is.close();
-            json = new String(buffer, StandardCharsets.UTF_8);
+            json = new String(buffer, STANDARD_CHARSET);
         } catch (IOException ex) {
             ex.printStackTrace();
             return null;

@@ -51,7 +51,8 @@ public class VideoItem implements Parcelable {
         title = in.readString();
     }
 
-    public VideoItem(){}
+    public VideoItem() {
+    }
 
 
     public String getDescription() {
@@ -66,16 +67,16 @@ public class VideoItem implements Parcelable {
         return sources;
     }
 
+    public void setSources(List<String> sources) {
+        this.sources = sources;
+    }
+
     public String getSource() {
         return source;
     }
 
     public void setSource(String source) {
         this.source = source;
-    }
-
-    public void setSources(List<String> sources) {
-        this.sources = sources;
     }
 
     public String getSubtitle() {
@@ -127,7 +128,7 @@ public class VideoItem implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(description);
-        dest.writeStringArray((String[]) sources.toArray());
+        dest.writeStringArray(sources.toArray(new String[0]));
         dest.writeString(subtitle);
         dest.writeString(thumb);
         dest.writeString(title);
