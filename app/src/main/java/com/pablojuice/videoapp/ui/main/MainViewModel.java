@@ -16,10 +16,9 @@ public class MainViewModel extends ViewModel {
 
     MutableLiveData<List<VideoItem>> videoItems = new MutableLiveData<>();
 
-    public void loadVideosRequest(Activity activity){
+    public void loadVideosRequest(Activity activity) {
         videoItems.postValue(getVideosFromJson(getJSONFromAsset(activity, "scenes.json")));
     }
-
 
 
 }

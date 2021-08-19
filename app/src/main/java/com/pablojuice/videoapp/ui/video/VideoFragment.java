@@ -4,14 +4,11 @@ import android.content.pm.ActivityInfo;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.MediaController;
-import android.widget.RelativeLayout;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -26,6 +23,11 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.pablojuice.videoapp.R;
 import com.pablojuice.videoapp.core.BaseFragment;
 import com.pablojuice.videoapp.databinding.FragmentItemMainBinding;
@@ -35,6 +37,7 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
 
     private VideoViewModel mViewModel;
     private VideoItem videoItem;
+    private SimpleExoPlayer exoPlayer;
 
     @Override
     protected FragmentItemMainBinding bindLayout(LayoutInflater inflater, ViewGroup container) {
@@ -132,24 +135,23 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
 
     private void playVideo() {
         binding.mainScrollView.setVisibility(View.GONE);
-        binding.videoView.setVisibility(View.VISIBLE);
+        binding.videoPlayer.setVisibility(View.VISIBLE);
         toggleFullscreen();
-        MediaController mediaController = new MediaController(requireContext());
-        mediaController.setAnchorView(binding.videoView);
-        binding.videoView.setMediaController(mediaController);
-        binding.videoView.setVideoURI(Uri.parse(videoItem.getSources().get(0)));
-
-        DisplayMetrics metrics = new DisplayMetrics();
-        getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        binding.videoView.setLayoutParams(new RelativeLayout.LayoutParams(metrics.widthPixels, metrics.heightPixels));
-
-
-
-        binding.videoView.start();
+        exoPlayer = new SimpleExoPlayer.Builder(requireContext()).build();
+        MediaSource mediaSource = new ProgressiveMediaSource
+                .Factory(new DefaultDataSourceFactory(requireContext(), "usr"))
+                .createMediaSource(MediaItem.fromUri(Uri.parse(videoItem.getSources().get(0))));
+        exoPlayer.setMediaSource(mediaSource);
+        exoPlayer.setPlayWhenReady(true);
+        exoPlayer.play();
+        binding.videoPlayer.setPlayer(exoPlayer);
+        exoPlayer.setPlayWhenReady(true);
+        exoPlayer.play();
     }
 
     private void stopVideo() {
-        binding.videoView.stopPlayback();
+        exoPlayer.setPlayWhenReady(false);
+        exoPlayer.release();
         mViewModel.setVideoPlaying(false);
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
@@ -162,21 +164,16 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
         } else {
             getActivity().setTheme(R.style.Theme_VideoApp_NoActionBar);
             getActivity().requestWindowFeature(Window.FEATURE_NO_TITLE);
-            getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                                               WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
     }
 
     private void toggleFullscreen() {
         View decorView = getActivity().getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
-        decorView.setOnSystemUiVisibilityChangeListener(visibility -> {
-            if (visibility == 0) {
-                decorView.setSystemUiVisibility(uiOptions);
-            }
-        });
+        decorView.setOnSystemUiVisibilityChangeListener(visibility -> decorView.setSystemUiVisibility(
+                uiOptions));
     }
 }

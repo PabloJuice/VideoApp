@@ -76,14 +76,15 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             videoImage = itemView.findViewById(R.id.ivVideoImage);
             videoTitle = itemView.findViewById(R.id.tvVideoTitle);
             videoSubtitle = itemView.findViewById(R.id.tvVideoSubtitle);
-            itemView.setOnClickListener(v ->{
+            itemView.setOnClickListener(v -> {
                 VideoItem videoItem = items.get(getAdapterPosition());
 
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("videoItem", videoItem);
 
                 AppCompatActivity activity = (AppCompatActivity) itemView.getContext();
-                NavController navController = Navigation.findNavController(activity, R.id.fragmentContainerView);
+                NavController navController = Navigation.findNavController(activity,
+                                                                           R.id.fragmentContainerView);
                 navController.navigate(R.id.action_mainFragment_to_videoFragment, bundle);
             });
         }
@@ -92,17 +93,26 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             videoImage.post(() -> Glide.with(context)
                     .load(videoItem.getThumb()).diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                     .listener(new RequestListener<Drawable>() {
-                @Override
-                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                    videoImage.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.sync_error_icon, null));
-                    return false;
-                }
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e,
+                                                    Object model,
+                                                    Target<Drawable> target,
+                                                    boolean isFirstResource) {
+                            videoImage.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),
+                                                                                    R.drawable.sync_error_icon,
+                                                                                    null));
+                            return false;
+                        }
 
-                @Override
-                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                    return false;
-                }
-            }).into(videoImage));
+                        @Override
+                        public boolean onResourceReady(Drawable resource,
+                                                       Object model,
+                                                       Target<Drawable> target,
+                                                       DataSource dataSource,
+                                                       boolean isFirstResource) {
+                            return false;
+                        }
+                    }).into(videoImage));
             videoTitle.setText(videoItem.getTitle());
             videoSubtitle.setText(videoItem.getSubtitle());
         }

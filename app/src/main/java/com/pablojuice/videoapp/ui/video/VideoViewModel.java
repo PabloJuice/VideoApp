@@ -8,14 +8,14 @@ public class VideoViewModel extends ViewModel {
 
     private boolean isVideoPlaying = false;
 
-    public void checkIfVideoIsFavourite(){
+    public void checkIfVideoIsFavourite() {
         isFavourite.setValue(false);
     }
 
-    public void addOrDeleteFromFavourites(){
-        if (isFavourite.getValue()){
+    public void addOrDeleteFromFavourites() {
+        if (isFavourite.getValue()) {
             isFavourite.setValue(false);
-        }else isFavourite.setValue(true);
+        } else isFavourite.setValue(true);
     }
 
     public boolean isVideoPlaying() {

@@ -11,7 +11,8 @@ import java.util.List;
 public class VideoItemsDto {
     private ArrayList<VideoItem> videos = new ArrayList<>();
 
-    public VideoItemsDto() {}
+    public VideoItemsDto() {
+    }
 
     public VideoItemsDto(List<VideoItem> list) {
         videos.addAll(list);
