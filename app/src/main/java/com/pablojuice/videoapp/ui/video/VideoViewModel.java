@@ -14,14 +14,14 @@ import com.pablojuice.videoapp.models.VideoItem;
 public class VideoViewModel extends ViewModel {
 
     private VideoItem videoItem;
-    private MutableLiveData<Boolean> isFavourite = new MutableLiveData<>();//
+    private MutableLiveData<Boolean> isFavourite = new MutableLiveData<>();
     private AppDatabase videoDatabase;
     private boolean isVideoPlaying = false;
 
     public void setupDatabaseConnection(Context context) {
         this.videoDatabase = Room.databaseBuilder(context,
                                                   AppDatabase.class,
-                                                  DATABASE_NAME).allowMainThreadQueries().build();//
+                                                  DATABASE_NAME).allowMainThreadQueries().build();
     }
 
     public void checkIfVideoIsFavourite() {

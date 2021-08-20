@@ -76,10 +76,10 @@ public class MainFragment extends BaseFragment<FragmentMainBinding> {
 
     private void setupObservers() {
         mViewModel.getVideoItems().observe(getViewLifecycleOwner(),
-                                      videoItems -> {
-                                          videoAdapter = new VideoAdapter(videoItems);
-                                          binding.videoRecyclerView.setAdapter(videoAdapter);/////TODO
-                                      });
+                                           videoItems -> {
+                                               videoAdapter = new VideoAdapter(videoItems);
+                                               binding.videoRecyclerView.setAdapter(videoAdapter);
+                                           });
     }
 
     private void setupRecyclerView() {

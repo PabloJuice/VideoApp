@@ -26,13 +26,11 @@ import java.util.List;
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
 
     private final List<VideoItem> items;
-    private View.OnClickListener onClickListener;
 
-    public VideoAdapter(List<VideoItem> items) {//, View.OnClickListener onClickListener
+    public VideoAdapter(List<VideoItem> items) {
         if (items != null) {
             this.items = items;
         } else this.items = new ArrayList<>();
-        //this.onClickListener = onClickListener;
     }
 
     @NonNull

@@ -21,6 +21,8 @@ public class MainViewModel extends ViewModel {
     private MutableLiveData<List<VideoItem>> videoItems = new MutableLiveData<>();
     private AppDatabase videoDatabase;
 
+    private final String FILE_NAME = "scenes.json";
+
     private void setupDatabase(Context context) {
         this.videoDatabase = Room.databaseBuilder(context,
                                                   AppDatabase.class,
@@ -29,7 +31,7 @@ public class MainViewModel extends ViewModel {
 
     public void loadVideosRequest(Activity activity) {
         setupDatabase(activity.getApplicationContext());
-        List<VideoItem> items = getVideosFromJson(getJsonFromAsset(activity, "scenes.json"));
+        List<VideoItem> items = getVideosFromJson(getJsonFromAsset(activity, FILE_NAME));
         videoItems.postValue(items);
         if (videoDatabase.videoDao().findAll().isEmpty()) {
             items.forEach(videoItem -> this.videoDatabase.videoDao().insert(videoItem));
