@@ -13,7 +13,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 
-public abstract class BaseFragment<B extends ViewDataBinding> extends Fragment implements Navigator {
+public abstract class BaseFragment<B extends ViewDataBinding> extends Fragment {
 
     protected B binding;
     protected NavController navController;

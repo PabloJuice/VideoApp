@@ -48,13 +48,13 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        navController = Navigation.findNavController(binding.getRoot());
         if (getActivity().getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-            setupVideoPlayer();
+            startVideo();
         } else {
             fetchVideoInfo();
             setupOnClickListeners();
         }
-        navController = Navigation.findNavController(binding.getRoot());
         setupNativeBackButton();
     }
 
@@ -105,10 +105,18 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
                                                                     null));
     }
 
-    private void setupVideoPlayer() {
+    private void startVideo() {
+        setupPlayerViews();
+        toggleFullscreen();
+        prepareExoPlayer();
+    }
+    private void setupPlayerViews(){
         binding.mainScrollView.setVisibility(View.GONE);
         binding.videoPlayer.setVisibility(View.VISIBLE);
-        toggleFullscreen();
+        getView().findViewById(R.id.exo_back).setOnClickListener(v -> goBack());
+    }
+
+    private void prepareExoPlayer() {
         exoPlayer = new SimpleExoPlayer.Builder(requireContext()).build();
         MediaSource mediaSource = new ProgressiveMediaSource
                 .Factory(new DefaultDataSourceFactory(requireContext(), ITEM_KEY))
@@ -117,13 +125,12 @@ public class VideoFragment extends BaseFragment<FragmentItemMainBinding> {
         exoPlayer.setMediaSource(mediaSource);
         exoPlayer.setPlayWhenReady(true);
         exoPlayer.prepare();
-
-        getView().findViewById(R.id.exo_back).setOnClickListener(v -> goBack());
     }
 
     private void stopVideo() {
         exoPlayer.setPlayWhenReady(false);
         exoPlayer.release();
+        exoPlayer = null;
         mViewModel.setVideoPlaying(false);
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }

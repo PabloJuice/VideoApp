@@ -1,10 +1,8 @@
 package com.pablojuice.videoapp.ui.main.adapter;
 
-import static com.pablojuice.videoapp.utils.Constants.ITEM_KEY;
 import static com.pablojuice.videoapp.utils.VideoUtil.loadImageFromVideoItem;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,25 +10,28 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.pablojuice.videoapp.R;
 import com.pablojuice.videoapp.models.VideoItem;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
 
-    private final List<VideoItem> items;
+    private List<VideoItem> items;
+    private final OnClickListener onClickListener;
 
-    public VideoAdapter(List<VideoItem> items) {
-        if (items != null) {
-            this.items = items;
-        } else this.items = new ArrayList<>();
+    public VideoAdapter(@NonNull OnClickListener onClickListener) {
+        this.onClickListener = onClickListener;
+    }
+
+    public List<VideoItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<VideoItem> items) {
+        this.items = items;
     }
 
     @NonNull
@@ -51,6 +52,10 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         return items.size();
     }
 
+    public interface OnClickListener {
+        void onItemClicked(VideoItem videoItem);
+    }
+
     class VideoViewHolder extends RecyclerView.ViewHolder {
 
         private ImageView videoImage;
@@ -63,16 +68,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
             context = itemView.getContext();
             videoImage = itemView.findViewById(R.id.ivVideoImage);
             videoTitle = itemView.findViewById(R.id.tvVideoTitle);
-            videoSubtitle = itemView.findViewById(R.id.tvVideoSubtitle);////TODO
-            itemView.setOnClickListener(v -> {
-                VideoItem videoItem = items.get(getBindingAdapterPosition());
-                Bundle bundle = new Bundle();
-                bundle.putParcelable(ITEM_KEY, videoItem);
-                AppCompatActivity activity = (AppCompatActivity) itemView.getContext();
-                NavController navController = Navigation.findNavController(activity,
-                                                                           R.id.fragmentContainerView);
-                navController.navigate(R.id.action_mainFragment_to_videoFragment, bundle);
-            });
+            videoSubtitle = itemView.findViewById(R.id.tvVideoSubtitle);
+            itemView.setOnClickListener(v -> onClickListener.onItemClicked(items.get(
+                    getBindingAdapterPosition())));
         }
 
         public void bind(VideoItem videoItem) {

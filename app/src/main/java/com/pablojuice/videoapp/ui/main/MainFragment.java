@@ -1,5 +1,7 @@
 package com.pablojuice.videoapp.ui.main;
 
+import static com.pablojuice.videoapp.utils.Constants.ITEM_KEY;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,17 +11,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.pablojuice.videoapp.R;
 import com.pablojuice.videoapp.core.BaseFragment;
 import com.pablojuice.videoapp.databinding.FragmentMainBinding;
+import com.pablojuice.videoapp.models.VideoItem;
 import com.pablojuice.videoapp.ui.main.adapter.VideoAdapter;
 import com.pablojuice.videoapp.utils.Constants;
 
 
-public class MainFragment extends BaseFragment<FragmentMainBinding> {
+public class MainFragment extends BaseFragment<FragmentMainBinding> implements VideoAdapter.OnClickListener {
 
     private MainViewModel mViewModel;
     private VideoAdapter videoAdapter;
@@ -44,9 +48,10 @@ public class MainFragment extends BaseFragment<FragmentMainBinding> {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        navController = Navigation.findNavController(binding.getRoot());
         setupTabBar();
-        setupObservers();
         setupRecyclerView();
+        setupObservers();
     }
 
     private void setupTabBar() {
@@ -77,12 +82,13 @@ public class MainFragment extends BaseFragment<FragmentMainBinding> {
     private void setupObservers() {
         mViewModel.getVideoItems().observe(getViewLifecycleOwner(),
                                            videoItems -> {
-                                               videoAdapter = new VideoAdapter(videoItems);
+                                               videoAdapter.setItems(videoItems);
                                                binding.videoRecyclerView.setAdapter(videoAdapter);
                                            });
     }
 
     private void setupRecyclerView() {
+        videoAdapter = new VideoAdapter(this);
         binding.videoRecyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2));
     }
 
@@ -92,4 +98,10 @@ public class MainFragment extends BaseFragment<FragmentMainBinding> {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
+    @Override
+    public void onItemClicked(VideoItem videoItem) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(ITEM_KEY, videoItem);
+        navController.navigate(R.id.action_mainFragment_to_videoFragment, bundle);
+    }
 }
